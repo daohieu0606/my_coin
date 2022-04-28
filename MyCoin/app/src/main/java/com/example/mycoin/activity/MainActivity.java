@@ -1,6 +1,7 @@
 package com.example.mycoin.activity;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -15,13 +16,21 @@ import android.widget.TextView;
 
 import com.example.mycoin.R;
 import com.example.mycoin.adapter.LatestBlockAdapter;
+import com.example.mycoin.api.MinerApi;
+import com.example.mycoin.api.RetrofitBuilder;
+import com.example.mycoin.api.WalletApi;
 import com.example.mycoin.dialog.SendCoinDialog;
 import com.example.mycoin.dialog.TransactionHistoryDialog;
 import com.example.mycoin.model.BlockModel;
 import com.example.mycoin.model.Wallet;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Response;
+import retrofit2.Retrofit;
 
 public class MainActivity extends AppCompatActivity {
     private LatestBlockAdapter latestBlockAdapter;
@@ -35,7 +44,6 @@ public class MainActivity extends AppCompatActivity {
     private TextView txtLatestBlocks;
     private ImageView imgLatestTransactions;
     private TextView txtLatestTransactions;
-    private TextView txtWalletAddress;
     private TextView txtBalance;
 
     @Override
@@ -54,13 +62,12 @@ public class MainActivity extends AppCompatActivity {
         txtLatestTransactions = findViewById(R.id.txtLatestTransactions);
         btnSend = findViewById(R.id.btnSend);
         btnHistory = findViewById(R.id.btnHistory);
-        txtWalletAddress = findViewById(R.id.txtWalletAddress);
         txtBalance = findViewById(R.id.txtBalance);
 
         btnLatestBlocks.setOnClickListener((v)->{
             setCurrentTab(0);
         });
-        btnLatestBlocks.setOnClickListener((v)->{
+        btnLatestTransactions.setOnClickListener((v)->{
             setCurrentTab(1);
         });
 
@@ -72,21 +79,42 @@ public class MainActivity extends AppCompatActivity {
             onBtnHistoryClick();
         });
 
-        List<BlockModel> blockModels = new ArrayList<>();
-        blockModels.add(new BlockModel());
-        blockModels.add(new BlockModel());
-        blockModels.add(new BlockModel());
-        blockModels.add(new BlockModel());
-        blockModels.add(new BlockModel());
-        blockModels.add(new BlockModel());
-        blockModels.add(new BlockModel());
-        blockModels.add(new BlockModel());
-
-        latestBlockAdapter.setAndNotifyNewDataList(blockModels);
+        getLatestBlocks();
 
         rvLatestBlocks.setAdapter(latestBlockAdapter);
 
         rvLatestBlocks.setLayoutManager(new LinearLayoutManager(this));
+    }
+
+    private void getLatestBlocks() {
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try  {
+                    Retrofit retrofit = new RetrofitBuilder().getRetrofit();
+                    MinerApi minerApi =
+                            retrofit.create(MinerApi.class);
+                    Call<List<BlockModel>> call = minerApi.getLatestBlocks("");
+
+                    try {
+                        Response<List<BlockModel>> response = call.execute();
+                        List<BlockModel> blockModels = response.body();
+
+                        setNewListViewData(blockModels);
+
+                    } catch (IOException e ){
+                    }
+                } catch (Exception e) {
+                }
+            }
+        });
+        thread.start();
+    }
+
+    private void setNewListViewData(List<BlockModel> blockModels) {
+        this.runOnUiThread(()->{
+            latestBlockAdapter.setAndNotifyNewDataList(blockModels);
+        });
     }
 
     @Override
@@ -96,7 +124,6 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = getIntent();
         Wallet wallet = (Wallet) intent.getSerializableExtra("wallet");
 
-        txtWalletAddress.setText(wallet.privateKey);
         txtBalance.setText("$" + wallet.balance);
     }
 
@@ -114,10 +141,30 @@ public class MainActivity extends AppCompatActivity {
 
     private void setCurrentTab(int tabNum) {
         if(tabNum == 1) {
-//            txtLatestTransactions.setTextColor();
+            setTextColor(txtLatestTransactions, R.color.mainColor);
+            imgLatestTransactions.setColorFilter(ContextCompat.getColor(this, R.color.mainColor),
+                    android.graphics.PorterDuff.Mode.MULTIPLY);
+
+            setTextColor(txtLatestBlocks, R.color.secondaryColor);
+            imgLatestBlocks.setColorFilter(ContextCompat.getColor(this, R.color.secondaryColor),
+                    android.graphics.PorterDuff.Mode.MULTIPLY);
         }
         else {
+            setTextColor(txtLatestTransactions, R.color.secondaryColor);
+            imgLatestTransactions.setColorFilter(ContextCompat.getColor(this, R.color.secondaryColor),
+                    android.graphics.PorterDuff.Mode.MULTIPLY);
 
+            setTextColor(txtLatestBlocks, R.color.mainColor);
+            imgLatestBlocks.setColorFilter(ContextCompat.getColor(this, R.color.mainColor),
+                    android.graphics.PorterDuff.Mode.MULTIPLY);
+        }
+    }
+
+    public void setTextColor(TextView textView, int resource) {
+        if(android.os.Build.VERSION.SDK_INT >= 23) {
+            textView.setTextColor(ContextCompat.getColor(this, resource));
+        } else {
+            textView.setTextColor(getResources().getColor(resource));
         }
     }
 }

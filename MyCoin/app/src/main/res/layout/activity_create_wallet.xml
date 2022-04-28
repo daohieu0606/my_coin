@@ -14,22 +14,35 @@
         android:layout_centerInParent="true"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
+
         <Button
             android:id="@+id/btnGenerateWallet"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
             android:layout_centerHorizontal="true"
-            android:text="Generate Wallet"
-            android:textAllCaps="false"
-            android:textColor="@color/white"
             android:layout_marginTop="24dp"
             android:background="@color/mainColor"
+            android:text="Generate Wallet"
+            android:textAllCaps="false"
+            android:textColor="@color/white" />
+
+        <Button
+            android:id="@+id/btnLogin"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            android:layout_below="@id/btnGenerateWallet"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="16dp"
+            android:background="@color/secondaryButtonColor"
+            android:text="Back To Login"
+            android:textAllCaps="false"
+            android:textColor="@color/black" />
 
 
         <TextView
             android:id="@+id/txtResult"
-            android:layout_below="@id/btnGenerateWallet"
+            android:layout_below="@id/btnLogin"
             android:layout_marginTop="64dp"
             android:text="------------ RESULT ------------"
             android:layout_centerHorizontal="true"
@@ -54,7 +67,7 @@
 
             <TextView
                 android:id="@+id/txtPrivateKeyValue"
-                android:text="0xd62a6dc5a197d2c2ed57387987c7a73a8f97fd8c26c413378644825d91c60648"
+                android:text=""
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
         </LinearLayout>
@@ -76,7 +89,7 @@
 
             <TextView
                 android:id="@+id/txtPublicKeyValue"
-                android:text="0xe890055Ac6361f89b654D9c67002F7FA0262C2B4"
+                android:text=""
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
         </LinearLayout>

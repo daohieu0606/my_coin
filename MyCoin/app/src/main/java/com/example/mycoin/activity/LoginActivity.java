@@ -5,6 +5,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Toast;
 
 import com.example.mycoin.R;
 import com.example.mycoin.api.RetrofitBuilder;
@@ -18,9 +20,10 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 
 public class LoginActivity extends AppCompatActivity {
-
     private Button btnCreateWallet;
     private Button btnLogin;
+    private EditText edtPrivateKey;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,6 +32,7 @@ public class LoginActivity extends AppCompatActivity {
 
         btnCreateWallet = findViewById(R.id.btnCreateWallet);
         btnLogin = findViewById(R.id.btnLogin);
+        edtPrivateKey = findViewById(R.id.edtPrivateKey);
     }
 
     @Override
@@ -49,18 +53,23 @@ public class LoginActivity extends AppCompatActivity {
 
                         WalletApi walletApi =
                                 retrofit.create(WalletApi.class);
-                        Call<Wallet> call = walletApi.createWallet();
+                        Call<Wallet> call = walletApi.login(edtPrivateKey.getText().toString());
 
                         try {
                             Response<Wallet> response = call.execute();
                             Wallet wallet = response.body();
 
-                            goToMainActivity(wallet);
+                            if(wallet != null) {
+                                goToMainActivity(wallet);
+                            } else {
+                                showLoginError("private key is incorrect");
+                            }
 
                         } catch (IOException e ){
+                            showLoginError(e.getMessage());
                         }
                     } catch (Exception e) {
-                        e.printStackTrace();
+                        showLoginError(e.getMessage());
                     }
                 }
             });
@@ -69,6 +78,10 @@ public class LoginActivity extends AppCompatActivity {
 
 
         });
+    }
+
+    private void showLoginError(String message) {
+        this.runOnUiThread(()->{Toast.makeText(this, "error: " + message, Toast.LENGTH_LONG).show();});
     }
 
     private void goToMainActivity(Wallet wallet) {
