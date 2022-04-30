@@ -1,14 +1,10 @@
 package com.example.mycoin.model;
 
-import lombok.Getter;
-import lombok.Setter;
 
-@Getter
-@Setter
 public class TransactionModel {
-    private String id;
-    private long timeStamp;
-    private String sender;
-    private String receiver;
-    private float value;
+    public String id;
+    public long timeStamp;
+    public String sender;
+    public String receiver;
+    public float value;
 }

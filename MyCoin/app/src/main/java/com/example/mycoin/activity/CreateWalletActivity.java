@@ -2,6 +2,9 @@ package com.example.mycoin.activity;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.TextView;
@@ -21,6 +24,7 @@ import retrofit2.Retrofit;
 public class CreateWalletActivity extends AppCompatActivity {
     private Button btnGenerateWallet;
     private Button btnLogin;
+    private Button btnCopyPrivateKey;
     private TextView txtPrivateKeyValue;
     private TextView txtPublicKeyValue;
 
@@ -31,6 +35,7 @@ public class CreateWalletActivity extends AppCompatActivity {
 
         btnGenerateWallet = findViewById(R.id.btnGenerateWallet);
         btnLogin = findViewById(R.id.btnLogin);
+        btnCopyPrivateKey = findViewById(R.id.btnCopyPrivateKey);
         txtPrivateKeyValue = findViewById(R.id.txtPrivateKeyValue);
         txtPublicKeyValue = findViewById(R.id.txtPublicKeyValue);
 
@@ -38,6 +43,19 @@ public class CreateWalletActivity extends AppCompatActivity {
             onBtnGenerateWalletClicked();});
         btnLogin.setOnClickListener((l) ->{
             onBtnLoginClicked();});
+        btnCopyPrivateKey.setOnClickListener((l) ->{
+            onBtnCopyPrivateKeyClicked();});
+    }
+
+    private void onBtnCopyPrivateKeyClicked() {
+        if(txtPrivateKeyValue.getText() == "")
+            return;;
+
+        ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+        ClipData clip = ClipData.newPlainText("label", txtPrivateKeyValue.getText());
+        clipboard.setPrimaryClip(clip);
+
+        Toast.makeText(getApplicationContext(), "You have copied private key to clipboard", Toast.LENGTH_LONG).show();
     }
 
     private void onBtnLoginClicked() {

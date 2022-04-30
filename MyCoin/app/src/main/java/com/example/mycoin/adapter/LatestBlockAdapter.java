@@ -34,7 +34,6 @@ public class LatestBlockAdapter extends RecyclerView.Adapter<LatestBlockAdapter.
 
         View view = inflater.inflate(R.layout.item_coin, parent, false);
 
-        // Return a new holder instance
         ViewHolder viewHolder = new ViewHolder(view);
         return viewHolder;
     }
@@ -43,7 +42,8 @@ public class LatestBlockAdapter extends RecyclerView.Adapter<LatestBlockAdapter.
     public void onBindViewHolder(@NonNull LatestBlockAdapter.ViewHolder holder, int position) {
         BlockModel blockModel = blockModels.get(position);
 
-        String createdTime = DurationFormatUtils.formatDuration(new Date().getTime() - blockModel.timeStamp, "**H:mm:ss**", true);
+        String createdTime = DurationFormatUtils.formatDuration(new Date().getTime() - blockModel.timeStamp,
+                "H:mm:ss ago", true);
 
         holder.txtBlockIndex.setText(String.valueOf(blockModel.index));
         holder.txtTime.setText(createdTime);

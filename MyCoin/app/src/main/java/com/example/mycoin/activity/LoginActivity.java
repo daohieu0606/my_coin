@@ -8,6 +8,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.example.mycoin.MainApplication;
 import com.example.mycoin.R;
 import com.example.mycoin.api.RetrofitBuilder;
 import com.example.mycoin.api.WalletApi;
@@ -60,7 +61,7 @@ public class LoginActivity extends AppCompatActivity {
                             Wallet wallet = response.body();
 
                             if(wallet != null) {
-                                goToMainActivity(wallet);
+                                loginSuccess(wallet);
                             } else {
                                 showLoginError("private key is incorrect");
                             }
@@ -84,11 +85,12 @@ public class LoginActivity extends AppCompatActivity {
         this.runOnUiThread(()->{Toast.makeText(this, "error: " + message, Toast.LENGTH_LONG).show();});
     }
 
-    private void goToMainActivity(Wallet wallet) {
+    private void loginSuccess(Wallet wallet) {
+        MainApplication mainApplication = (MainApplication)getApplication();
+        mainApplication.currentWallet = wallet;
+
         Intent intent = new Intent(this, MainActivity.class);
-
         intent.putExtra("wallet", wallet);
-
         startActivity(intent);
     }
 }

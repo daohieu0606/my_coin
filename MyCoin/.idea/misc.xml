@@ -5,6 +5,7 @@
       <map>
         <entry key="app/src/main/res/drawable/border_rectangle.xml" value="0.1705" />
         <entry key="app/src/main/res/drawable/circle_shape.xml" value="0.1705" />
+        <entry key="app/src/main/res/drawable/ic_baseline_arrow_back_24.xml" value="0.189" />
         <entry key="app/src/main/res/drawable/ic_baseline_attach_money_24.xml" value="0.1705" />
         <entry key="app/src/main/res/drawable/ic_baseline_send_24.xml" value="0.1705" />
         <entry key="app/src/main/res/layout/activity_create_wallet.xml" value="0.22447916666666667" />
@@ -15,6 +16,7 @@
         <entry key="app/src/main/res/layout/dialog_transaction_history.xml" value="0.22447916666666667" />
         <entry key="app/src/main/res/layout/fragment_send_coin.xml" value="0.22447916666666667" />
         <entry key="app/src/main/res/layout/item_coin.xml" value="0.22447916666666667" />
+        <entry key="app/src/main/res/layout/item_transaction.xml" value="0.22447916666666667" />
         <entry key="app/src/main/res/xml/network_security_config.xml" value="0.1" />
       </map>
     </option>

@@ -157,6 +157,7 @@
             android:orientation="vertical"
             android:layout_width="0dp"
             android:layout_weight="1"
+            android:background="@color/whiteBg"
             android:layout_height="match_parent">
             <RelativeLayout
                 android:background="@drawable/circle_shape"
@@ -180,6 +181,11 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
         </LinearLayout>
+        <View
+            android:id="@+id/seperator"
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:background="@android:color/darker_gray"/>
         <LinearLayout
             android:id="@+id/btnLatestTransactions"
             android:gravity="center"

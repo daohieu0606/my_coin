@@ -7,25 +7,26 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
-import android.content.res.Resources;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.example.mycoin.MainApplication;
 import com.example.mycoin.R;
 import com.example.mycoin.adapter.LatestBlockAdapter;
+import com.example.mycoin.adapter.TransactionAdapter;
 import com.example.mycoin.api.MinerApi;
 import com.example.mycoin.api.RetrofitBuilder;
 import com.example.mycoin.api.WalletApi;
 import com.example.mycoin.dialog.SendCoinDialog;
 import com.example.mycoin.dialog.TransactionHistoryDialog;
 import com.example.mycoin.model.BlockModel;
+import com.example.mycoin.model.TransactionModel;
 import com.example.mycoin.model.Wallet;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 import retrofit2.Call;
@@ -34,6 +35,7 @@ import retrofit2.Retrofit;
 
 public class MainActivity extends AppCompatActivity {
     private LatestBlockAdapter latestBlockAdapter;
+    private TransactionAdapter transactionAdapter;
     private RecyclerView rvLatestBlocks;
     private View btnLatestBlocks;
     private View btnLatestTransactions;
@@ -45,13 +47,20 @@ public class MainActivity extends AppCompatActivity {
     private ImageView imgLatestTransactions;
     private TextView txtLatestTransactions;
     private TextView txtBalance;
+    private int currentTab;
+
+    private MainApplication mainApplication;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        mainApplication = (MainApplication) getApplication();
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         latestBlockAdapter = new LatestBlockAdapter();
+        transactionAdapter = new TransactionAdapter();
 
         btnLatestBlocks = findViewById(R.id.btnLatestBlocks);
         btnLatestTransactions = findViewById(R.id.btnLatestTransactions);
@@ -94,13 +103,13 @@ public class MainActivity extends AppCompatActivity {
                     Retrofit retrofit = new RetrofitBuilder().getRetrofit();
                     MinerApi minerApi =
                             retrofit.create(MinerApi.class);
-                    Call<List<BlockModel>> call = minerApi.getLatestBlocks("");
+                    Call<List<BlockModel>> call = minerApi.getLatestBlocks();
 
                     try {
                         Response<List<BlockModel>> response = call.execute();
                         List<BlockModel> blockModels = response.body();
 
-                        setNewListViewData(blockModels);
+                        setNewLatestBlocks(blockModels);
 
                     } catch (IOException e ){
                     }
@@ -111,9 +120,17 @@ public class MainActivity extends AppCompatActivity {
         thread.start();
     }
 
-    private void setNewListViewData(List<BlockModel> blockModels) {
+    private void setNewLatestBlocks(List<BlockModel> blockModels) {
         this.runOnUiThread(()->{
+            rvLatestBlocks.setAdapter(latestBlockAdapter);
             latestBlockAdapter.setAndNotifyNewDataList(blockModels);
+        });
+    }
+
+    private void setNewTransactionBlocks(List<TransactionModel> transactionModels) {
+        this.runOnUiThread(()->{
+            rvLatestBlocks.setAdapter(transactionAdapter);
+            transactionAdapter.setAndNotifyNewDataList(transactionModels);
         });
     }
 
@@ -135,8 +152,51 @@ public class MainActivity extends AppCompatActivity {
 
     private void onSendButtonClicked() {
         FragmentManager fm = getSupportFragmentManager();
-        SendCoinDialog sendCoinDialog = new SendCoinDialog();
+        SendCoinDialog sendCoinDialog = new SendCoinDialog(() -> {
+            updateWalletBalance();
+            setCurrentTab(currentTab);
+        });
         sendCoinDialog.show(fm, sendCoinDialog.getTag());
+    }
+
+    private void updateWalletBalance() {
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try  {
+                    Retrofit retrofit = new RetrofitBuilder().getRetrofit();
+
+                    WalletApi walletApi =
+                            retrofit.create(WalletApi.class);
+                    Call<Wallet> call = walletApi.login(mainApplication.currentWallet.privateKey);
+
+                    try {
+                        Response<Wallet> response = call.execute();
+                        Wallet wallet = response.body();
+
+                        if(wallet != null) {
+                            mainApplication.currentWallet = wallet;
+                            upDateWalletBalanceInUI(mainApplication.currentWallet.balance);
+                        } else {
+                            finish();
+                        }
+
+                    } catch (IOException e ){
+                        finish();
+                    }
+                } catch (Exception e) {
+                    finish();
+                }
+            }
+        });
+
+        thread.start();
+    }
+
+    private void upDateWalletBalanceInUI(float balance) {
+        runOnUiThread(() -> {
+            txtBalance.setText(String.valueOf(balance));
+        });
     }
 
     private void setCurrentTab(int tabNum) {
@@ -144,20 +204,54 @@ public class MainActivity extends AppCompatActivity {
             setTextColor(txtLatestTransactions, R.color.mainColor);
             imgLatestTransactions.setColorFilter(ContextCompat.getColor(this, R.color.mainColor),
                     android.graphics.PorterDuff.Mode.MULTIPLY);
+            btnLatestTransactions.setBackgroundColor(ContextCompat.getColor(this, R.color.whiteBg));
 
             setTextColor(txtLatestBlocks, R.color.secondaryColor);
             imgLatestBlocks.setColorFilter(ContextCompat.getColor(this, R.color.secondaryColor),
                     android.graphics.PorterDuff.Mode.MULTIPLY);
+            btnLatestBlocks.setBackgroundColor(ContextCompat.getColor(this, R.color.white));
+
+            getLatestTransactions();
         }
         else {
             setTextColor(txtLatestTransactions, R.color.secondaryColor);
             imgLatestTransactions.setColorFilter(ContextCompat.getColor(this, R.color.secondaryColor),
                     android.graphics.PorterDuff.Mode.MULTIPLY);
+            btnLatestBlocks.setBackgroundColor(ContextCompat.getColor(this, R.color.whiteBg));
 
             setTextColor(txtLatestBlocks, R.color.mainColor);
             imgLatestBlocks.setColorFilter(ContextCompat.getColor(this, R.color.mainColor),
                     android.graphics.PorterDuff.Mode.MULTIPLY);
+            btnLatestTransactions.setBackgroundColor(ContextCompat.getColor(this, R.color.white));
+
+            getLatestBlocks();
         }
+        currentTab = tabNum;
+    }
+
+    private void getLatestTransactions() {
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try  {
+                    Retrofit retrofit = new RetrofitBuilder().getRetrofit();
+                    MinerApi minerApi =
+                            retrofit.create(MinerApi.class);
+                    Call<List<TransactionModel>> call = minerApi.getLatestTransactions();
+
+                    try {
+                        Response<List<TransactionModel>> response = call.execute();
+                        List<TransactionModel> transactionModels = response.body();
+
+                        setNewTransactionBlocks(transactionModels);
+
+                    } catch (IOException e ){
+                    }
+                } catch (Exception e) {
+                }
+            }
+        });
+        thread.start();
     }
 
     public void setTextColor(TextView textView, int resource) {

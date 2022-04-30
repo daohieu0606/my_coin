@@ -20,9 +20,11 @@ public interface WalletApi {
     @GET("api/v1/wallet")
     Call<Wallet> login(@Query("privateKey") String privateKey);
 
-    @GET("api/v1/miner/get-latest-blocks")
-    Call<BlockModel> getLatestBlocks();
+    @POST("api/v1/wallets/send-coin")
+    Call<TransactionModel> sendCoin(@Query("senderPrivateKey") String senderPrivateKey,
+                  @Query("receiverPublicKey") String receiverPublicKey,
+                  @Query("coin") float coin);
 
     @GET("api/v1/wallets/history")
-    Call<List<TransactionModel>> getHistoryTransactions();
+    Call<List<TransactionModel>> getHistoryTransactions(@Query("privateKey") String privateKey);
 }

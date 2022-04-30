@@ -49,8 +49,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
 
-        <LinearLayout
-            android:id="@+id/lnPrivateKey"
+        <RelativeLayout
+            android:id="@+id/rlPrivateKey"
             android:layout_below="@id/txtResult"
             android:layout_marginTop="16dp"
             android:orientation="horizontal"
@@ -67,13 +67,23 @@
 
             <TextView
                 android:id="@+id/txtPrivateKeyValue"
+                android:layout_toRightOf="@id/txtPrivateKeyLabel"
+                android:layout_toLeftOf="@id/btnCopyPrivateKey"
                 android:text=""
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
-        </LinearLayout>
+
+            <Button
+                android:id="@+id/btnCopyPrivateKey"
+                android:layout_alignParentTop="true"
+                android:background="@drawable/ic_baseline_content_copy_24"
+                android:layout_alignParentEnd="true"
+                android:layout_width="24dp"
+                android:layout_height="24dp"/>
+        </RelativeLayout>
         <LinearLayout
             android:id="@+id/lbPublicKey"
-            android:layout_below="@id/lnPrivateKey"
+            android:layout_below="@id/rlPrivateKey"
             android:layout_marginTop="8dp"
             android:orientation="horizontal"
             android:layout_width="match_parent"
