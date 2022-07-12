@@ -1,5 +1,5 @@
 # my_coin
-Bài tập tuần cá nhân Blockchain
+Cypto Coin đơn giản
 
 Video Demo: https://youtu.be/4it13mrMOPk
 
